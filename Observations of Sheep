@@ -1,0 +1,44 @@
+import codecademylib
+import pandas as pd
+from matplotlib import pyplot as plt
+
+species = pd.read_csv('species_info.csv')
+species.fillna('No Intervention', inplace = True)
+species['is_protected'] = species.conservation_status != 'No Intervention'
+
+observations = pd.read_csv('observations.csv')
+
+species['is_sheep'] = species.common_names.apply(lambda x: 'Sheep' in x)
+
+species_is_sheep = species.is_sheep == True
+#print species_is_sheep
+
+sheep_species = species[(species.is_sheep) & (species.category == 'Mammal')]
+
+#print sheep_species
+
+sheep_observations = pd.merge(sheep_species,observations)
+
+#print sheep_observations.head()
+
+obs_by_park = sheep_observations.groupby('park_name').observations.sum().reset_index()
+
+#print obs_by_park
+
+plt.figure(figsize = (16,4))
+ax=plt.subplot()
+bar_heights = obs_by_park.observations
+plt.bar(range(len(bar_heights)), bar_heights)
+ax.set_xticks(range(len(obs_by_park.park_name)))
+ax.set_xticklabels(obs_by_park.park_name)
+plt.ylabel('Number of Observations')
+plt.title('Observations of Sheep per Week')
+plt.show()
+
+baseline = 15
+minimum_detectable_effect = 33
+sample_size_per_variant = 890
+yellowstone_weeks_observing = 890/(507*0.15)
+#11.7028270874
+bryce_weeks_observing = 890/(250*0.15)
+#23.7333333333
